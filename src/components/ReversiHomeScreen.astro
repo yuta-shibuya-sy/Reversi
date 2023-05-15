@@ -1,26 +1,33 @@
 ---
+import FirstPlayerDecision from "../components/FirstPlayerDecision.astro";
 ---
 
-<div class="wrapper">
-  <div class="reversi-home-screen">
-    <h2 class="section-title">Reversi</h2>
-    <div class="flex">
-      <input
-        class="opponent-player click-color"
-        type="button"
-        data-value="Solo-player"
-        value="Solo Play"
-      />
-      <input
-        class="opponent-player"
-        type="button"
-        data-value="two-player"
-        value="Two Paly"
-      />
+<div>
+  <div class="wrapper">
+    <div class="reversi-home-screen">
+      <h2 class="section-title">Reversi</h2>
+      <div class="flex">
+        <input
+          class="opponent-player click-color"
+          type="button"
+          data-value="Solo-player"
+          value="Solo Play"
+        />
+        <input
+          class="opponent-player"
+          type="button"
+          data-value="two-player"
+          value="Two Paly"
+        />
+      </div>
+      <div class="start-click">
+        <input type="button" class="game-start" value="START" />
+      </div>
     </div>
-    <div class="start-click">
-      <input type="button" class="game-start" value="START" />
-    </div>
+  </div>
+  <div class="first_player_decision_display">
+    hello
+    <FirstPlayerDecision />
   </div>
 </div>
 
@@ -93,6 +100,15 @@
     background-color: #ffe67d;
   }
 
+  .first_player_decision_display {
+    display: none;
+    width: 50%;
+    height: 100px;
+    background-color: #ffe67d;
+    opacity: 0;
+    transition: all 1s;
+  }
+
   @media (max-width: 500px) {
     .section-title {
       font-size: 80px;
@@ -115,23 +131,41 @@
 </style>
 
 <script>
-  const player = document.querySelectorAll(".opponent-player");
+  const one_player = "Solo-player";
+  const two_player = "two-player";
+  let Opponents = "";
+
+  const player = document.querySelectorAll<HTMLElement>(".opponent-player");
   for (const palyer_list of player) {
     palyer_list.addEventListener("click", function () {
-      const background_color = document.querySelector(".click-color");
+      const background_color =
+        document.querySelector<HTMLElement>(".click-color");
       background_color.classList.remove("click-color");
       palyer_list.classList.toggle("click-color");
     });
   }
 
-  const game_start = document.querySelector(".start-click");
+  const game_start = document.querySelector<HTMLElement>(".start-click");
   game_start.addEventListener("click", function () {
-    const opponent_player = document.querySelector(".click-color");
-    const game_screen = document.querySelector(".wrapper");
-    console.log(opponent_player.getAttribute("data-value"));
+    const opponent_player = document.querySelector<HTMLElement>(".click-color");
+    const game_screen = document.querySelector<HTMLElement>(".wrapper");
+    const first_player_decision_display = document.querySelector<HTMLElement>(
+      ".first_player_decision_display"
+    );
+    if (opponent_player.getAttribute("data-value") == "Solo-player") {
+      Opponents = one_player;
+      console.log(Opponents);
+    } else if (opponent_player.getAttribute("data-value") == "two-player") {
+      Opponents = two_player;
+      console.log(Opponents);
+    }
     game_screen.style.opacity = "0";
     setTimeout(function () {
       game_screen.style.display = "none";
+      first_player_decision_display.style.display = "flex";
     }, 1100);
+    setTimeout(function () {
+      first_player_decision_display.style.opacity = "1";
+    }, 2000);
   });
 </script>
