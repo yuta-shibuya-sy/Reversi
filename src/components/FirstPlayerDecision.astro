@@ -1,0 +1,102 @@
+---
+---
+
+<div class="reversi">
+  <div class="reversi-first-player-wrapper">
+    <div class="card">
+      <!-- 裏面のコンテンツ -->
+      <div class="back">
+        <div class="back-inner"></div>
+      </div>
+      <!-- 表面のコンテンツ -->
+      <div class="front" data-value=""></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .reversi-first-player-wrapper {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 1s;
+    padding: 0 1%;
+  }
+
+  .card {
+    width: 200px;
+    position: relative;
+    border-radius: 5px;
+  }
+
+  .card::before {
+    content: "";
+    display: block;
+    padding-top: 142.5%;
+  }
+
+  .card .back,
+  .card .front {
+    transition: all 1.5s;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    backface-visibility: hidden;
+    border-radius: 8px;
+    border: solid 2px #586365;
+  }
+
+  .card .back {
+    background-color: #fff;
+  }
+
+  .card .back-inner {
+    background-color: red;
+    height: calc(100% - 2 * 15px);
+    margin: 15px;
+    border-radius: 8px;
+    border: solid 2px #586365;
+  }
+
+  .card .front {
+    background-color: aquamarine;
+    transform: rotateY(-180deg);
+  }
+
+  /* ホバー時のカード裏面 */
+  .card:hover .back {
+    transform: rotateY(180deg);
+  }
+
+  /* ホバー時のカード表面 */
+  .card:hover .front {
+    transform: rotateY(0);
+  }
+
+  @media (max-width: 500px) {
+    .card {
+      width: 150px;
+    }
+  }
+</style>
+
+<script>
+  const no = 0;
+  const yes = 1;
+  let opponent_player_judge = no;
+  setInterval(function () {
+    const game_start_button =
+      document.querySelector<HTMLElement>(".game-start-button");
+    if (
+      game_start_button.getAttribute("data-value") != "" &&
+      opponent_player_judge == no
+    ) {
+      console.log(5);
+      opponent_player_judge = yes;
+    }
+  }, 100);
+</script>
