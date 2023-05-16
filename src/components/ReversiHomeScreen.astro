@@ -152,13 +152,16 @@ import FirstPlayerDecision from "../components/FirstPlayerDecision.astro";
     const first_player_decision_display = document.querySelector<HTMLElement>(
       ".first_player_decision_display"
     );
-    if (opponent_player.getAttribute("data-value") == "Solo-player") {
-      Opponents = one_player;
-      console.log(Opponents);
-    } else if (opponent_player.getAttribute("data-value") == "two-player") {
-      Opponents = two_player;
-      console.log(Opponents);
-    }
+
+    // test
+    // if (opponent_player.getAttribute("data-value") == "Solo-player") {
+    //   Opponents = one_player;
+    //   console.log(Opponents);
+    // } else if (opponent_player.getAttribute("data-value") == "two-player") {
+    //   Opponents = two_player;
+    //   console.log(Opponents);
+    // }
+
     game_screen.style.opacity = "0";
     setTimeout(function () {
       game_screen.style.display = "none";
