@@ -2,53 +2,58 @@
 import FirstPlayerDecision from "../components/FirstPlayerDecision.astro";
 ---
 
-<div>
-  <div class="wrapper">
+<div class="reversi">
+  <!--  -->
+  <div class="reversi-home-screen-wrapper">
     <div class="reversi-home-screen">
       <h2 class="section-title">Reversi</h2>
       <div class="flex">
         <input
-          class="opponent-player click-color"
+          class="opponent-player-select-button opponent-player-now"
           type="button"
           data-value="Solo-player"
           value="Solo Play"
         />
         <input
-          class="opponent-player"
+          class="opponent-player-select-button"
           type="button"
-          data-value="two-player"
+          data-value="Two-player"
           value="Two Paly"
         />
       </div>
-      <div class="start-click">
-        <input type="button" class="game-start" value="START" />
-      </div>
+      <input
+        class="game-start-button"
+        type="button"
+        data-value=""
+        value="START"
+      />
     </div>
   </div>
+
+  <!--  -->
   <div class="first_player_decision_display">
-    hello
     <FirstPlayerDecision />
   </div>
 </div>
 
 <style>
-  .wrapper {
-    max-width: 100vw;
+  .reversi-home-screen-wrapper {
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     transition: all 1s;
+    padding: 0 1%;
   }
 
   .reversi-home-screen {
-    max-width: 800px;
+    max-width: 500px;
     margin: 0 auto;
-    padding: 10px;
+    padding: 2%;
   }
 
   .section-title {
-    font-size: 100px;
+    font-size: 6rem;
     font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
     text-align: center;
     margin-bottom: 20px;
@@ -56,119 +61,120 @@ import FirstPlayerDecision from "../components/FirstPlayerDecision.astro";
 
   .flex {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
   }
 
-  .opponent-player {
+  .opponent-player-select-button {
     font-size: 1.1rem;
+    font-weight: bold;
     font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
     padding: 20px 50px;
-    margin: 15px;
     border-radius: 10px;
-    border: solid 2px #586365;
+    border: solid 2.1px #586365;
     transition: all 0.3s;
   }
 
-  .opponent-player:hover {
+  .opponent-player-select-button:first-of-type {
+    margin-right: 15px;
+  }
+
+  .opponent-player-select-button:hover {
     opacity: 0.8;
   }
 
-  .start-click {
+  .game-start-button {
     text-align: center;
-  }
-
-  .game-start {
-    width: 350px;
-    font-size: 1.5rem;
+    width: 100%;
+    font-size: 1.8rem;
+    font-weight: bold;
     font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
     padding: 20px 50px;
-    margin: 15px;
+    margin-top: 20px;
     border-radius: 10px;
     border: solid 2px #586365;
     transition: all 0.2s;
   }
 
-  .game-start:hover {
+  .game-start-button:hover {
     opacity: 0.8;
   }
 
-  .game-start:active {
+  .game-start-button:active {
     background-color: aquamarine;
   }
 
-  .click-color {
+  .opponent-player-now {
     background-color: #ffe67d;
   }
 
+  /* 後で変更 */
   .first_player_decision_display {
     display: none;
-    width: 50%;
-    height: 100px;
-    background-color: #ffe67d;
     opacity: 0;
     transition: all 1s;
   }
 
   @media (max-width: 500px) {
     .section-title {
-      font-size: 80px;
+      font-size: 4rem;
     }
 
-    .opponent-player {
+    .opponent-player-select-button {
       font-size: 1rem;
-      padding: 15px 35px;
-      margin: 15px;
-      border-radius: 10px;
+      padding: 12px 35px;
+      margin-bottom: 10px;
     }
 
-    .game-start {
-      width: 280px;
+    .opponent-player-select-button:first-of-type {
+      margin-right: 10px;
+    }
+
+    .game-start-button {
       font-size: 1.5rem;
-      padding: 20px 50px;
-      margin: 15px;
+      padding: 15px 50px;
+      margin-top: 10px;
     }
   }
 </style>
 
 <script>
-  const one_player = "Solo-player";
-  const two_player = "two-player";
-  let Opponents = "";
-
-  const player = document.querySelectorAll<HTMLElement>(".opponent-player");
-  for (const palyer_list of player) {
-    palyer_list.addEventListener("click", function () {
-      const background_color =
-        document.querySelector<HTMLElement>(".click-color");
-      background_color.classList.remove("click-color");
-      palyer_list.classList.toggle("click-color");
+  // 対戦相手の選択表示・変更
+  const player_select_button = document.querySelectorAll<HTMLElement>(
+    ".opponent-player-select-button"
+  );
+  for (const player_select_buttons of player_select_button) {
+    player_select_buttons.addEventListener("click", function () {
+      const opponent_player_now = document.querySelector<HTMLElement>(
+        ".opponent-player-now"
+      );
+      opponent_player_now.classList.remove("opponent-player-now");
+      player_select_buttons.classList.add("opponent-player-now");
     });
   }
 
-  const game_start = document.querySelector<HTMLElement>(".start-click");
-  game_start.addEventListener("click", function () {
-    const opponent_player = document.querySelector<HTMLElement>(".click-color");
-    const game_screen = document.querySelector<HTMLElement>(".wrapper");
+  const game_start_button =
+    document.querySelector<HTMLElement>(".game-start-button");
+  game_start_button.addEventListener("click", function () {
+    const opponent_player_now = document.querySelector<HTMLElement>(
+      ".opponent-player-now"
+    );
+    const game_screen = document.querySelector<HTMLElement>(
+      ".reversi-home-screen-wrapper"
+    );
     const first_player_decision_display = document.querySelector<HTMLElement>(
       ".first_player_decision_display"
     );
-
-    // test
-    // if (opponent_player.getAttribute("data-value") == "Solo-player") {
-    //   Opponents = one_player;
-    //   console.log(Opponents);
-    // } else if (opponent_player.getAttribute("data-value") == "two-player") {
-    //   Opponents = two_player;
-    //   console.log(Opponents);
-    // }
-
     game_screen.style.opacity = "0";
+    game_start_button.setAttribute(
+      "data-value",
+      opponent_player_now.getAttribute("data-value")
+    );
     setTimeout(function () {
       game_screen.style.display = "none";
       first_player_decision_display.style.display = "flex";
     }, 1100);
     setTimeout(function () {
       first_player_decision_display.style.opacity = "1";
-    }, 2000);
+    }, 1500);
   });
 </script>
