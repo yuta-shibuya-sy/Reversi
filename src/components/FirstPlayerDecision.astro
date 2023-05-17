@@ -23,7 +23,7 @@
           </div>
         </div>
       </div>
-      <div class="front" data-value="">
+      <div class="front" data-first-player="" data-first-color="">
         <div>
           <p class="first-text">First</p>
           <p class="first-player"></p>
@@ -36,7 +36,7 @@
 <style>
   .reversi-first-player-wrapper {
     height: 100vh;
-    width: 100vw;
+    width: calc(100vw - 2 * 1%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -46,6 +46,7 @@
 
   .card {
     width: 200px;
+
     position: relative;
     border-radius: 5px;
   }
@@ -197,18 +198,18 @@
 
       if (data_value == "Solo-player") {
         if (first_player == black) {
-          front.setAttribute("data-value", "black");
+          front.setAttribute("data-first-player", "black");
           first_player_text.textContent = "You";
         } else if (first_player == white) {
-          front.setAttribute("data-value", "white");
+          front.setAttribute("data-first-player", "white");
           first_player_text.textContent = "Computer";
         }
       } else if (data_value == "Two-player") {
         if (first_player == black) {
-          front.setAttribute("data-value", "black");
+          front.setAttribute("data-first-player", "black");
           first_player_text.textContent = "Black";
         } else if (first_player == white) {
-          front.setAttribute("data-value", "white");
+          front.setAttribute("data-first-player", "white");
           first_player_text.textContent = "White";
         }
       }
