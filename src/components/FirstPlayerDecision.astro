@@ -4,12 +4,31 @@
 <div class="reversi">
   <div class="reversi-first-player-wrapper">
     <div class="card">
-      <!-- 裏面のコンテンツ -->
       <div class="back">
-        <div class="back-inner"></div>
+        <div class="back-inner">
+          <div class="container one">
+            <div class="rhombus"></div>
+          </div>
+          <div class="container two">
+            <div class="rhombus"></div>
+          </div>
+          <div class="container three">
+            <div class="rhombus"></div>
+          </div>
+          <div class="container four">
+            <div class="rhombus"></div>
+          </div>
+          <div class="container five">
+            <div class="rhombus"></div>
+          </div>
+        </div>
       </div>
-      <!-- 表面のコンテンツ -->
-      <div class="front" data-value=""></div>
+      <div class="front" data-value="">
+        <div>
+          <p class="first-text">First</p>
+          <p class="first-player"></p>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -52,34 +71,97 @@
 
   .card .back {
     background-color: #fff;
+    transform: rotateY(0);
   }
 
   .card .back-inner {
-    background-color: red;
+    background-color: #ff8b8b;
     height: calc(100% - 2 * 15px);
     margin: 15px;
     border-radius: 8px;
     border: solid 2px #586365;
+    position: relative;
+  }
+
+  .container {
+    position: absolute;
+    display: flex;
+    gap: 10px 50px;
+  }
+
+  .one {
+    top: 20%;
+    left: 17%;
+    transform: translate(0, -50%);
+  }
+
+  .two {
+    top: 20%;
+    right: 17%;
+    transform: translate(0, -50%);
+  }
+
+  .three {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .four {
+    bottom: 20%;
+    left: 17%;
+    transform: translate(0, 50%);
+  }
+
+  .five {
+    bottom: 20%;
+    right: 17%;
+    transform: translate(0, 50%);
+  }
+
+  .rhombus {
+    width: 37px;
+    height: 37px;
+    border-radius: 2px;
+    transform: rotate(45deg) skew(10deg, 10deg);
+    background: #fff;
   }
 
   .card .front {
-    background-color: aquamarine;
     transform: rotateY(-180deg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
-  /* ホバー時のカード裏面 */
-  .card:hover .back {
-    transform: rotateY(180deg);
+  .first-text,
+  .first-player {
+    font-size: 2rem;
+    text-align: center;
+    font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
   }
 
-  /* ホバー時のカード表面 */
-  .card:hover .front {
-    transform: rotateY(0);
+  .first-player {
+    margin-top: 15px;
+    font-size: 2.5rem;
   }
 
   @media (max-width: 500px) {
     .card {
       width: 150px;
+    }
+
+    .rhombus {
+      width: 22px;
+      height: 22px;
+    }
+
+    .first-text {
+      font-size: 1.8rem;
+    }
+
+    .first-player {
+      font-size: 2rem;
     }
   }
 </style>
@@ -88,6 +170,11 @@
   const no = 0;
   const yes = 1;
   let opponent_player_judge = no;
+
+  const black = 1;
+  const white = 2;
+  let first_player = 0;
+
   setInterval(function () {
     const game_start_button =
       document.querySelector<HTMLElement>(".game-start-button");
@@ -95,8 +182,36 @@
       game_start_button.getAttribute("data-value") != "" &&
       opponent_player_judge == no
     ) {
-      console.log(5);
+      const front = document.querySelector<HTMLElement>(".front");
+      const back = document.querySelector<HTMLElement>(".back");
+      setTimeout(function () {
+        front.style.transform = "rotateY(0)";
+        back.style.transform = "rotateY(180deg)";
+      }, 2500);
+
       opponent_player_judge = yes;
+      const data_value = game_start_button.getAttribute("data-value");
+      const first_player_text =
+        document.querySelector<HTMLElement>(".first-player");
+      first_player = Math.floor(Math.random() * 2) + 1;
+
+      if (data_value == "Solo-player") {
+        if (first_player == black) {
+          front.setAttribute("data-value", "black");
+          first_player_text.textContent = "Black";
+        } else if (first_player == white) {
+          front.setAttribute("data-value", "white");
+          first_player_text.textContent = "White";
+        }
+      } else if (data_value == "Two-player") {
+        if (first_player == black) {
+          front.setAttribute("data-value", "black");
+          first_player_text.textContent = "You";
+        } else if (first_player == white) {
+          front.setAttribute("data-value", "white");
+          first_player_text.textContent = "Computer";
+        }
+      }
     }
-  }, 100);
+  }, 1000);
 </script>
