@@ -168,9 +168,10 @@
 </style>
 
 <script>
+  //
   const no = 0;
   const yes = 1;
-  let opponent_player_judge = no;
+  let game_start_judge = no;
 
   const black = 1;
   const white = 2;
@@ -181,7 +182,7 @@
       document.querySelector<HTMLElement>(".game-start-button");
     if (
       game_start_button.getAttribute("data-value") != "" &&
-      opponent_player_judge == no
+      game_start_judge == no
     ) {
       const front = document.querySelector<HTMLElement>(".front");
       const back = document.querySelector<HTMLElement>(".back");
@@ -190,7 +191,7 @@
         back.style.transform = "rotateY(180deg)";
       }, 2500);
 
-      opponent_player_judge = yes;
+      game_start_judge = yes;
       const data_value = game_start_button.getAttribute("data-value");
       const first_player_text =
         document.querySelector<HTMLElement>(".first-player");
