@@ -198,18 +198,18 @@
       if (data_value == "Solo-player") {
         if (first_player == black) {
           front.setAttribute("data-value", "black");
-          first_player_text.textContent = "Black";
-        } else if (first_player == white) {
-          front.setAttribute("data-value", "white");
-          first_player_text.textContent = "White";
-        }
-      } else if (data_value == "Two-player") {
-        if (first_player == black) {
-          front.setAttribute("data-value", "black");
           first_player_text.textContent = "You";
         } else if (first_player == white) {
           front.setAttribute("data-value", "white");
           first_player_text.textContent = "Computer";
+        }
+      } else if (data_value == "Two-player") {
+        if (first_player == black) {
+          front.setAttribute("data-value", "black");
+          first_player_text.textContent = "Black";
+        } else if (first_player == white) {
+          front.setAttribute("data-value", "white");
+          first_player_text.textContent = "White";
         }
       }
     }
