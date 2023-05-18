@@ -168,16 +168,26 @@
 </style>
 
 <script>
-  //
+  // ゲームをスタートしたのか
   const no = 0;
   const yes = 1;
   let game_start_judge = no;
 
-  const black = 1;
-  const white = 2;
+  //　どちらが先行なのか
+  const player_one = 1;
+  const player_two = 2;
   let first_player = 0;
 
+  // 先行の人の色は黒・白どちらか
+  const black = 1;
+  const white = 2;
+  let first_player_color = 0;
+
   setInterval(function () {
+    start_judge();
+  }, 1000);
+
+  function start_judge() {
     const game_start_button =
       document.querySelector<HTMLElement>(".game-start-button");
     if (
@@ -215,5 +225,5 @@
         }
       }
     }
-  }, 1000);
+  }
 </script>
