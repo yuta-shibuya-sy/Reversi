@@ -1,5 +1,5 @@
 ---
-import FirstPlayerDecision from "../components/FirstPlayerDecision.astro";
+import First_Player_Decision_Crad from "../components/First_Player_Decision_Card.astro";
 ---
 
 <div class="reversi">
@@ -12,13 +12,13 @@ import FirstPlayerDecision from "../components/FirstPlayerDecision.astro";
           class="opponent-player-select-button opponent-player-now"
           type="button"
           data-value="Solo-player"
-          value="Solo Play"
+          value="Solo Player"
         />
         <input
           class="opponent-player-select-button"
           type="button"
           data-value="Two-player"
-          value="Two Paly"
+          value="Two Palyer"
         />
       </div>
 
@@ -34,7 +34,7 @@ import FirstPlayerDecision from "../components/FirstPlayerDecision.astro";
 
   <!--  -->
   <div class="first_player_decision_display">
-    <FirstPlayerDecision />
+    <First_Player_Decision_Crad />
   </div>
 </div>
 
@@ -85,6 +85,10 @@ import FirstPlayerDecision from "../components/FirstPlayerDecision.astro";
     opacity: 0.8;
   }
 
+  .opponent-player-now {
+    background-color: #ffe67d;
+  }
+
   /* ゲームスタートボタン */
   .game-start-button {
     text-align: center;
@@ -107,17 +111,6 @@ import FirstPlayerDecision from "../components/FirstPlayerDecision.astro";
     background-color: aquamarine;
   }
 
-  .opponent-player-now {
-    background-color: #ffe67d;
-  }
-
-  /* 先行を決めるためのHTMLの表示 */
-  .first_player_decision_display {
-    display: none;
-    opacity: 0;
-    transition: all 1s;
-  }
-
   @media (max-width: 500px) {
     .section-title {
       font-size: 4rem;
@@ -125,7 +118,7 @@ import FirstPlayerDecision from "../components/FirstPlayerDecision.astro";
 
     .opponent-player-select-button {
       font-size: 1rem;
-      padding: 12px 35px;
+      padding: 10px 25px;
       margin-bottom: 10px;
     }
 
@@ -135,19 +128,27 @@ import FirstPlayerDecision from "../components/FirstPlayerDecision.astro";
 
     .game-start-button {
       font-size: 1.5rem;
-      padding: 15px 50px;
+      padding: 12px 50px;
       margin-top: 10px;
     }
+  }
+
+  /* 先行を決めるためのHTMLの表示 */
+  .first_player_decision_display {
+    display: none;
+    opacity: 0;
+    transition: all 1.5s;
   }
 </style>
 
 <script>
-  // 対戦相手の選択表示・変更
+  // 対戦相手の選択表示・変更(色)
   const player_select_button = document.querySelectorAll<HTMLElement>(
     ".opponent-player-select-button"
   );
   for (const player_select_buttons of player_select_button) {
     player_select_buttons.addEventListener("click", function () {
+      // 現在の対戦相手の取得
       const opponent_player_now = document.querySelector<HTMLElement>(
         ".opponent-player-now"
       );
@@ -169,14 +170,18 @@ import FirstPlayerDecision from "../components/FirstPlayerDecision.astro";
     const first_player_decision_display = document.querySelector<HTMLElement>(
       ".first_player_decision_display" //次の表示画面
     );
+
+    // 対戦相手の保存
     game_screen.style.opacity = "0";
     game_start_button.setAttribute(
       "data-value",
       opponent_player_now.getAttribute("data-value")
     );
+
+    // 次の画面の表示
     setTimeout(function () {
       game_screen.style.display = "none";
-      first_player_decision_display.style.display = "flex";
+      first_player_decision_display.style.display = "block";
     }, 1100);
     setTimeout(function () {
       first_player_decision_display.style.opacity = "1";
