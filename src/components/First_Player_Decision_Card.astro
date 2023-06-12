@@ -1,0 +1,125 @@
+---
+import { path } from "../path";
+---
+
+<div class="card-wrapper">
+  <section class="card-outside">
+    <div class="card">
+      <div class="back">
+        <img src={path("/assets/card_back.png")} alt="" />
+      </div>
+      <div class="front">
+        <div>
+          <h3 class="text">First</h3>
+          <h1 class="card-player" player-value="">Computer</h1>
+          <h1 class="card-color" color-value="">White</h1>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<style>
+  .card-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    widows: 100vw;
+  }
+
+  .card-outside {
+    display: flex;
+    padding: 2%;
+  }
+
+  .card {
+    width: 200px;
+    position: relative;
+  }
+
+  .card::before {
+    content: "";
+    display: block;
+    padding-top: 156.38%;
+  }
+
+  .card .back,
+  .card .front {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    backface-visibility: hidden;
+    border: solid 2px #586365;
+    border-radius: 8px;
+    transition: all 0.5s;
+    z-index: 100;
+  }
+
+  .card .back {
+    transform: rotateY(0);
+  }
+
+  .card:hover .back {
+    transform: rotateY(180deg);
+  }
+
+  .card .front {
+    font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transform: rotateY(-180deg);
+  }
+
+  .card:hover .front {
+    transform: rotateY(0);
+  }
+
+  img {
+    border-radius: 20px;
+  }
+
+  .front .text {
+    font-size: 2.5rem;
+    color: red;
+    margin-bottom: 7.5px;
+  }
+
+  .front .card-player {
+    font-size: 2rem;
+  }
+
+  .front .card-color {
+    font-size: 2rem;
+  }
+
+  @media (max-width: 500px) {
+    .card {
+      width: 130px;
+    }
+
+    .front .text {
+      font-size: 2rem;
+    }
+
+    .front .card-player {
+      font-size: 1.5rem;
+    }
+
+    .front .card-color {
+      font-size: 1.5rem;
+    }
+  }
+</style>
+
+<script>
+  const game_start_button =
+    document.querySelector<HTMLElement>(".game-start-button");
+  game_start_button.addEventListener("click", function () {
+    const card = document.querySelector<HTMLElement>(".card");
+  });
+</script>
