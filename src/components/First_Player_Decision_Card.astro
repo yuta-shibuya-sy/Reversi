@@ -11,8 +11,8 @@ import { path } from "../path";
       <div class="front">
         <div>
           <h3 class="text">First</h3>
-          <h1 class="card-player" player-value="">Computer</h1>
-          <h1 class="card-color" color-value="">White</h1>
+          <h1 class="card-player" player-value=""></h1>
+          <h1 class="card-color" color-value=""></h1>
         </div>
       </div>
     </div>
@@ -54,7 +54,7 @@ import { path } from "../path";
     backface-visibility: hidden;
     border: solid 2px #586365;
     border-radius: 8px;
-    transition: all 0.5s;
+    transition: all 1.5s;
     z-index: 100;
   }
 
@@ -62,7 +62,11 @@ import { path } from "../path";
     transform: rotateY(0);
   }
 
-  .card:hover .back {
+  /* .card:hover .back {
+    transform: rotateY(180deg);
+  } */
+
+  .card-revolution .back {
     transform: rotateY(180deg);
   }
 
@@ -75,7 +79,11 @@ import { path } from "../path";
     transform: rotateY(-180deg);
   }
 
-  .card:hover .front {
+  /* .card:hover .front {
+    transform: rotateY(0);
+  } */
+
+  .card-revolution .front {
     transform: rotateY(0);
   }
 
@@ -85,12 +93,13 @@ import { path } from "../path";
 
   .front .text {
     font-size: 2.5rem;
-    color: red;
+    /* color: red; */
     margin-bottom: 7.5px;
   }
 
   .front .card-player {
     font-size: 2rem;
+    margin-bottom: 2px;
   }
 
   .front .card-color {
@@ -117,9 +126,49 @@ import { path } from "../path";
 </style>
 
 <script>
+  const now_player = Math.floor(Math.random() * 2) + 1;
+
   const game_start_button =
     document.querySelector<HTMLElement>(".game-start-button");
   game_start_button.addEventListener("click", function () {
     const card = document.querySelector<HTMLElement>(".card");
+    const player_number =
+      document.querySelector<HTMLElement>(".game-start-button");
+    const card_player = document.querySelector<HTMLElement>(".card-player");
+    const card_color = document.querySelector<HTMLElement>(".card-color");
+
+    if (player_number.getAttribute("data-value") == "Solo-player") {
+      if (random() == 1) {
+        card_player.textContent = "You";
+        card_player.setAttribute("player-value", "you");
+      } else if (random() == 2) {
+        card_player.textContent = "Computer";
+        card_player.setAttribute("player-value", "computer");
+      }
+
+      if (random() == 1) {
+        card_color.textContent = "White";
+        card_color.setAttribute("color-value", "white");
+      } else if (random() == 2) {
+        card_color.textContent = "Black";
+        card_color.setAttribute("color-value", "black");
+      }
+    } else if (player_number.getAttribute("data-value") == "Two-player") {
+      if (random() == 1) {
+        card_color.textContent = "White";
+        card_color.setAttribute("color-value", "white");
+      } else if (random() == 2) {
+        card_color.textContent = "Black";
+        card_color.setAttribute("color-value", "black");
+      }
+    }
+    // cardの回転
+    setTimeout(function () {
+      card.classList.add("card-revolution");
+    }, 2000);
   });
+
+  function random() {
+    return Math.floor(Math.random() * 2) + 1;
+  }
 </script>
