@@ -1,22 +1,30 @@
 ---
+import Reversi_Board from "../components/Reversi_Board.astro";
+import reversi_board from "../components/Reversi_Board.astro";
 import { path } from "../path";
 ---
 
-<div class="card-wrapper">
-  <section class="card-outside">
-    <div class="card">
-      <div class="back">
-        <img src={path("/assets/card_back.png")} alt="" />
-      </div>
-      <div class="front">
-        <div>
-          <h3 class="text">First</h3>
-          <h1 class="card-player" player-value=""></h1>
-          <h1 class="card-color" color-value=""></h1>
+<div class="reversi">
+  <div class="card-wrapper">
+    <section class="card-outside">
+      <div class="card">
+        <div class="back">
+          <img src={path("/assets/card_back.png")} alt="" />
+        </div>
+        <div class="front">
+          <div>
+            <h3 class="text">First</h3>
+            <h1 class="card-player" player-value=""></h1>
+            <h1 class="card-color" color-value=""></h1>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
+
+  <div class="reversi-board-display">
+    <Reversi_Board />
+  </div>
 </div>
 
 <style>
@@ -26,6 +34,7 @@ import { path } from "../path";
     align-items: center;
     height: 100vh;
     widows: 100vw;
+    transition: all 1.5s;
   }
 
   .card-outside {
@@ -106,6 +115,12 @@ import { path } from "../path";
     font-size: 2rem;
   }
 
+  .reversi-board-display {
+    display: none;
+    opacity: 0;
+    transition: all 1.5s;
+  }
+
   @media (max-width: 500px) {
     .card {
       width: 130px;
@@ -126,8 +141,6 @@ import { path } from "../path";
 </style>
 
 <script>
-  const now_player = Math.floor(Math.random() * 2) + 1;
-
   const game_start_button =
     document.querySelector<HTMLElement>(".game-start-button");
   game_start_button.addEventListener("click", function () {
@@ -137,7 +150,14 @@ import { path } from "../path";
     const card_player = document.querySelector<HTMLElement>(".card-player");
     const card_color = document.querySelector<HTMLElement>(".card-color");
 
+    const first_player_decision_display =
+      document.querySelector<HTMLElement>(".card-wrapper"); //現在の画面
+    const reversi_board = document.querySelector<HTMLElement>(
+      ".reversi-board-display" //次の画面
+    );
+
     if (player_number.getAttribute("data-value") == "Solo-player") {
+      // どちらが先行なのか
       if (random() == 1) {
         card_player.textContent = "You";
         card_player.setAttribute("player-value", "you");
@@ -146,6 +166,7 @@ import { path } from "../path";
         card_player.setAttribute("player-value", "computer");
       }
 
+      // 先行の色は
       if (random() == 1) {
         card_color.textContent = "White";
         card_color.setAttribute("color-value", "white");
@@ -154,6 +175,7 @@ import { path } from "../path";
         card_color.setAttribute("color-value", "black");
       }
     } else if (player_number.getAttribute("data-value") == "Two-player") {
+      // 先行の色は
       if (random() == 1) {
         card_color.textContent = "White";
         card_color.setAttribute("color-value", "white");
@@ -166,6 +188,18 @@ import { path } from "../path";
     setTimeout(function () {
       card.classList.add("card-revolution");
     }, 2000);
+
+    // 次の画面の表示
+    setTimeout(function () {
+      first_player_decision_display.style.opacity = "0";
+    }, 4000);
+    setTimeout(function () {
+      first_player_decision_display.style.display = "none";
+      reversi_board.style.display = "block";
+    }, 5000);
+    setTimeout(function () {
+      reversi_board.style.opacity = "1";
+    }, 5500);
   });
 
   function random() {
