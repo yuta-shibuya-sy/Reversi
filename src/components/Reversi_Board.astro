@@ -403,16 +403,18 @@
 
   //   ゲームボード　白＝1、黒＝2
   let game_board = [
-    [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 2, 0, 0, 0],
+    [0, 0, 0, 0, 1, 0, 2, 0],
+    [0, 0, 0, 2, 1, 1, 0, 0],
+    [0, 0, 0, 1, 0, 1, 1, 2],
+    [0, 0, 0, 2, 2, 0, 0, 0],
     [0, 0, 0, 0, 2, 0, 0, 0],
-    [0, 0, 0, 1, 2, 0, 0, 0],
-    [0, 0, 0, 2, 1, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 2, 0, 0, 1, 0, 0, 0],
+    [0, 0, 0, 0, 2, 0, 0, 0],
   ];
 
+  var eight = [];
+  var eight_count = [];
   const eight_directions = [
     [-1, 0],
     [-1, 1],
@@ -434,12 +436,9 @@
       const player = document.querySelector<HTMLElement>(".player");
       const color = document.querySelector<HTMLElement>(".color");
 
-      // 初期設定
-      initialization();
-
       //   ターンの表示
       color.textContent = card_color.getAttribute("color-value");
-      if (card_color.getAttribute("color-value") == "White") {
+      if (card_color.getAttribute("color-value") == "white") {
         now_player_color = white;
       } else if (card_color.getAttribute("color-value") == "black") {
         now_player_color = black;
@@ -449,6 +448,9 @@
           "(" + card_player.getAttribute("player-value") + ")";
         player_number = "one";
       }
+
+      // 初期設定
+      initialization();
     }, 1500);
   });
 
@@ -465,7 +467,7 @@
   // 盤面の変更表示
   function game_board_change() {
     for (var i = 0; i < 8; i++) {
-      for (var j = 0; j < 5; j++) {
+      for (var j = 0; j < 8; j++) {
         let total = i * 8 + j;
         if (game_board[i][j] == white) {
           piece[total].classList.add("white");
@@ -479,13 +481,85 @@
   }
 
   function put_piece_check() {
-    for (var i = 0; i < piece.length; i++) {
-      let board_number_now = frame[i].getAttribute("data-value");
-      let line = Math.floor(Number(board_number_now) / 5);
-      let row = Number(board_number_now) % 5;
-      for (var j = 0; j < 8; j++) {
-        console.log(i * 8 + j);
+    for (let i = 28; i < 29; i++) {
+      let line_row = coordinate_chage(i);
+      let line = line_row[0];
+      let row = line_row[1];
+      var eight = [];
+
+      // 8方向探索
+      for (let j = 0; j < 8; j++) {
+        var directions = [];
+        directions.push(now_player_color);
+
+        // 1列探索 盤面の座標取得
+        for (let k = 1; k < 8; k++) {
+          line = line + eight_directions[j][0];
+          row = row + eight_directions[j][1];
+          if (
+            line < 0 ||
+            line > 7 ||
+            row < 0 ||
+            row > 7 ||
+            game_board[line][row] == 0
+          ) {
+            break;
+          } else {
+            directions.push(game_board[line][row]);
+          }
+        }
+
+        console.log(directions);
+
+        // 裏返す事が出来る数のカウント
+        let head_piece = directions[0];
+        let tail_piece = 0;
+        let count = 0;
+        for (let k = 1; k < directions.length; k++) {
+          tail_piece = directions[k];
+          if (head_piece == tail_piece) {
+            break;
+          } else {
+            count += 1;
+          }
+        }
+        if (head_piece != tail_piece) {
+          count = 0;
+        }
+        eight_count.push(count);
+
+        // リセット
+        line = line_row[0];
+        row = line_row[1];
+        eight.push(directions);
       }
+
+      let reversi_count = 0;
+      for (let k = 0; k < 8; k++) {
+        reversi_count += eight_count[k];
+      }
+      console.log(eight_count);
+      console.log(reversi_count);
+      eight = [];
+      eight_count = [];
     }
+  }
+
+  function coordinate_chage(value) {
+    let board_number_now = piece[value].getAttribute("data-value");
+    let line = Math.floor(Number(board_number_now) / 8);
+    let row = Number(board_number_now) % 8;
+    return [line, row];
+  }
+
+  // 置いた際に駒を置く
+  for (let i = 0; i < 64; i++) {
+    frame[i].addEventListener("click", function () {
+      let line_row = coordinate_chage(i);
+      if (game_board[line_row[0]][line_row[1]] == 0) {
+        game_board[line_row[0]][line_row[1]] = now_player_color;
+        game_board_change();
+      }
+    });
   }
 </script>
