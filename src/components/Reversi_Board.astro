@@ -271,12 +271,22 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 10;
+    z-index: 20;
   }
 
   /* カーソル */
   .game-board .frame:hover .cursor {
-    border: solid 2px #f9ff3a;
+    border: solid 3px #f9ff3a;
+  }
+
+  .white-color .frame:hover .cursor {
+    background-color: #fff;
+    opacity: 0.8;
+  }
+
+  .black-color .frame:hover .cursor {
+    background-color: #000;
+    opacity: 0.8;
   }
 
   .game-board .frame .white {
@@ -289,14 +299,14 @@
 
   /* ポインター */
   .game-board .frame .piece-pointer {
-    width: 15px;
-    height: 15px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 20;
+    z-index: 10;
   }
 
   .game-board .frame .pointer {
@@ -390,6 +400,7 @@
 </style>
 
 <script>
+  const game_board_color = document.querySelector<HTMLElement>(".game-board");
   const game_start_button =
     document.querySelector<HTMLElement>(".game-start-button");
   const frame = document.querySelectorAll<HTMLElement>(".frame");
@@ -414,7 +425,7 @@
     [0, 0, 0, 0, 0, 0, 0, 0],
   ];
 
-  let reversi_count = 0;
+  let eight_reversi_count = [];
   const eight_directions_coordinate = [
     [-1, 0],
     [-1, 1],
@@ -439,12 +450,50 @@
   // 置いた際に駒を置く
   for (let i = 0; i < 64; i++) {
     frame[i].addEventListener("click", function () {
-      let line_row = coordinate_chage(i);
-      if (game_board[line_row[0]][line_row[1]] == 0) {
-        game_board[line_row[0]][line_row[1]] = now_player_color;
+      let coordinate = coordinate_chage(i);
+      let dy = coordinate[0];
+      let dx = coordinate[1];
+      if (pointer[i].classList.contains("pointer")) {
+        game_board[dy][dx] = now_player_color;
+        eight_reversi_count = eight_directions_search(i);
+        for (let j = 0; j < eight_reversi_count.length; j++) {
+          dy = coordinate[0];
+          dx = coordinate[1];
+          for (let k = 0; k < eight_reversi_count[j]; k++) {
+            dy += eight_directions_coordinate[j][0];
+            dx += eight_directions_coordinate[j][1];
+            game_board[dy][dx] = now_player_color;
+          }
+        }
+
+        turn_change();
+        reset_pointer();
         game_board_change();
+        put_pointer();
       }
     });
+  }
+
+  function turn_change() {
+    const color = document.querySelector<HTMLElement>(".color");
+    const player = document.querySelector<HTMLElement>(".player");
+    if (now_player_color == white) {
+      now_player_color = black;
+      color.textContent = "black";
+      game_board_color.classList.remove("white-color");
+      game_board_color.classList.add("black-color");
+    } else if (now_player_color == black) {
+      now_player_color = white;
+      color.textContent = "white";
+      game_board_color.classList.remove("black-color");
+      game_board_color.classList.add("white-color");
+    }
+
+    if (player.textContent == "you") {
+      player.textContent = "computer";
+    } else if (player.textContent == "computer") {
+      player.textContent = "you";
+    }
   }
 
   function initialization_turn() {
@@ -457,8 +506,10 @@
     color.textContent = card_color.getAttribute("color-value");
     if (card_color.getAttribute("color-value") == "white") {
       now_player_color = white;
+      game_board_color.classList.add("white-color");
     } else if (card_color.getAttribute("color-value") == "black") {
       now_player_color = black;
+      game_board_color.classList.add("black-color");
     }
 
     // コンピュータ対戦の際、わかりやすく表示するようにする。
@@ -483,9 +534,15 @@
       for (var j = 0; j < 8; j++) {
         let total = i * 8 + j;
         if (game_board[i][j] == white) {
+          if (piece[total].classList.contains("black")) {
+            piece[total].classList.remove("black");
+          }
           piece[total].classList.add("white");
           piece[total].classList.remove("cursor");
         } else if (game_board[i][j] == black) {
+          if (piece[total].classList.contains("white")) {
+            piece[total].classList.remove("white");
+          }
           piece[total].classList.add("black");
           piece[total].classList.remove("cursor");
         }
@@ -499,8 +556,13 @@
       let dy = coordinate[0];
       let dx = coordinate[1];
       if (game_board[dy][dx] == 0) {
-        reversi_count = eight_directions_search(i);
-        if (reversi_count > 0) {
+        eight_reversi_count = eight_directions_search(i);
+
+        let count = 0;
+        for (let j = 0; j < eight_reversi_count.length; j++) {
+          count += eight_reversi_count[j];
+        }
+        if (count > 0) {
           pointer[i].classList.add("pointer");
         }
       }
@@ -512,7 +574,7 @@
     let dy = coordinate[0];
     let dx = coordinate[1];
 
-    reversi_count = 0;
+    let eight_reversi_count = [];
 
     // 8方向探索
     for (let j = 0; j < 8; j++) {
@@ -547,10 +609,9 @@
       if (head_piece != tail_piece) {
         count = 0;
       }
-      reversi_count += count;
+      eight_reversi_count.push(count);
     }
-
-    return reversi_count;
+    return eight_reversi_count;
   }
 
   // 数値を座標に変更する
@@ -559,5 +620,13 @@
     let dy = Math.floor(Number(coordinate) / 8);
     let dx = Number(coordinate) % 8;
     return [dy, dx];
+  }
+
+  function reset_pointer() {
+    for (let i = 0; i < pointer.length; i++) {
+      if (pointer[i].classList.contains("pointer")) {
+        pointer[i].classList.remove("pointer");
+      }
+    }
   }
 </script>
