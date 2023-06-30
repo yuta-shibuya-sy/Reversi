@@ -400,9 +400,10 @@
 </style>
 
 <script>
-  const game_board_color = document.querySelector<HTMLElement>(".game-board");
   const game_start_button =
     document.querySelector<HTMLElement>(".game-start-button");
+  const game_board_color = document.querySelector<HTMLElement>(".game-board");
+
   const frame = document.querySelectorAll<HTMLElement>(".frame");
   const cursor = document.querySelectorAll<HTMLElement>(".cursor");
   const piece = document.querySelectorAll<HTMLElement>(".piece");
@@ -437,7 +438,7 @@
     [-1, -1],
   ];
 
-  // 初期設定
+  // 初期設定(ゲームの開始時に行う事)
   game_start_button.addEventListener("click", function () {
     setTimeout(function () {
       // ターンの初期設定
@@ -447,7 +448,7 @@
     }, 1500);
   });
 
-  // 置いた際に駒を置く
+  // 駒を置くイベント
   for (let i = 0; i < 64; i++) {
     frame[i].addEventListener("click", function () {
       let coordinate = coordinate_chage(i);
@@ -459,6 +460,8 @@
         for (let j = 0; j < eight_reversi_count.length; j++) {
           dy = coordinate[0];
           dx = coordinate[1];
+
+          // ゲームボードの変更
           for (let k = 0; k < eight_reversi_count[j]; k++) {
             dy += eight_directions_coordinate[j][0];
             dx += eight_directions_coordinate[j][1];
@@ -474,17 +477,20 @@
     });
   }
 
+  // ターンの表示変更
   function turn_change() {
     const color = document.querySelector<HTMLElement>(".color");
     const player = document.querySelector<HTMLElement>(".player");
     if (now_player_color == white) {
       now_player_color = black;
       color.textContent = "black";
+      // カーソルの色変更
       game_board_color.classList.remove("white-color");
       game_board_color.classList.add("black-color");
     } else if (now_player_color == black) {
       now_player_color = white;
       color.textContent = "white";
+      // カーソルの色変更
       game_board_color.classList.remove("black-color");
       game_board_color.classList.add("white-color");
     }
@@ -611,6 +617,8 @@
       }
       eight_reversi_count.push(count);
     }
+
+    // 8方向それぞれの返す事が出来る枚数の配列として返す
     return eight_reversi_count;
   }
 
@@ -619,9 +627,12 @@
     let coordinate = piece[Number(piece_number)].getAttribute("data-value");
     let dy = Math.floor(Number(coordinate) / 8);
     let dx = Number(coordinate) % 8;
+
+    // 座標を配列として返す
     return [dy, dx];
   }
 
+  // ポインター(置けるマスの表示)のリセット
   function reset_pointer() {
     for (let i = 0; i < pointer.length; i++) {
       if (pointer[i].classList.contains("pointer")) {
