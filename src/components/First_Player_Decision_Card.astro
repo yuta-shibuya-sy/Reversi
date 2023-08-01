@@ -1,6 +1,5 @@
 ---
 import Reversi_Board from "../components/Reversi_Board.astro";
-import reversi_board from "../components/Reversi_Board.astro";
 import { path } from "../path";
 ---
 
@@ -14,8 +13,8 @@ import { path } from "../path";
         <div class="front">
           <div>
             <h3 class="text">First</h3>
-            <h1 class="card-player" player-value=""></h1>
             <h1 class="card-color" color-value=""></h1>
+            <h1 class="card-player" player-value=""></h1>
           </div>
         </div>
       </div>
@@ -159,10 +158,10 @@ import { path } from "../path";
     if (player_number.getAttribute("data-value") == "Solo-player") {
       // どちらが先行なのか
       if (random() == 1) {
-        card_player.textContent = "You";
+        card_player.textContent = "(You)";
         card_player.setAttribute("player-value", "you");
       } else {
-        card_player.textContent = "Computer";
+        card_player.textContent = "(Computer)";
         card_player.setAttribute("player-value", "computer");
       }
 
