@@ -3,6 +3,7 @@ import { path } from "../path";
 ---
 
 <div class="outside">
+  <!-- メイン画面 -->
   <div class="wrapper">
     <div class="game">
       <h3 class="turn">
@@ -10,6 +11,7 @@ import { path } from "../path";
         <div class="color"></div>
         <div class="player"></div>
       </h3>
+      <!-- ゲームボード -->
       <div class="game-board">
         <div class="flex">
           <p class="frame top left left-top-corner">
@@ -287,6 +289,7 @@ import { path } from "../path";
     </div>
   </div>
 
+  <!-- パス画面 -->
   <div class="pass">
     <div class="pass-text">
       <p class="pass-player-color"></p>
@@ -294,6 +297,7 @@ import { path } from "../path";
     </div>
   </div>
 
+  <!-- リザルト画面 -->
   <div class="result">
     <div class="result-inside">
       <div class="result-white">
@@ -314,18 +318,19 @@ import { path } from "../path";
     </div>
   </div>
 
+  <!-- 暗幕 -->
   <div class="result-screen"></div>
   <div class="clear-screen"></div>
 </div>
 
 <style>
-  /* common
+  /* 共通
   --------------- */
   .outside {
     position: relative;
   }
 
-  /* game
+  /* ゲームメイン画面
   --------------- */
   .wrapper {
     max-width: 100vw;
@@ -336,6 +341,7 @@ import { path } from "../path";
     margin: auto;
   }
 
+  /* ターン表記 */
   .game .turn {
     font-size: 2rem;
     margin-bottom: 15px;
@@ -349,7 +355,7 @@ import { path } from "../path";
     margin-right: 5px;
   }
 
-  /* game-board */
+  /* ゲームボード */
   .game-board .flex {
     display: flex;
   }
@@ -434,7 +440,7 @@ import { path } from "../path";
     border-bottom: solid 2px #000;
   }
 
-  /* 角 */
+  /* ゲームボード 角 */
   .game-board .left-top-corner {
     border-radius: 10px 0 0 0;
   }
@@ -482,7 +488,7 @@ import { path } from "../path";
     font-size: 45px;
   }
 
-  /* 結果
+  /* リザルト
   --------------- */
   .result {
     width: 100%;
@@ -699,7 +705,6 @@ import { path } from "../path";
   const game_board_color = document.querySelector<HTMLElement>(".game-board");
 
   const frame = document.querySelectorAll<HTMLElement>(".frame");
-  const cursor = document.querySelectorAll<HTMLElement>(".cursor");
   const piece = document.querySelectorAll<HTMLElement>(".piece");
   const pointer = document.querySelectorAll<HTMLElement>(".piece-pointer");
 
@@ -731,7 +736,9 @@ import { path } from "../path";
   //   [2, 0, 0, 0, 1, 0, 0, 1],
   // ];
 
+  // 八方向の返す事で出来る枚数
   let eight_reversi_count = [];
+  // 八方向の座標
   const eight_directions_coordinate = [
     [-1, 0],
     [-1, 1],
@@ -750,7 +757,7 @@ import { path } from "../path";
       initialization_turn();
       // ゲームボードの初期設定
       initialization_game_board();
-      // AI
+      // AIの初期行動
       initialization_AI();
     }, 1500);
   });
@@ -782,6 +789,7 @@ import { path } from "../path";
 
   // ゲームボードの初期設定
   function initialization_game_board() {
+    // 駒に数字を与える(どこを選択したのかを確かめる為為)
     for (var i = 0; i < piece.length; i++) {
       piece[i].setAttribute("data-value", String(i));
     }
@@ -789,6 +797,7 @@ import { path } from "../path";
     put_pointer();
   }
 
+  // AIの初期行動(初的がAIの場合)
   function initialization_AI() {
     const player = document.querySelector<HTMLElement>(".player");
 
@@ -800,7 +809,64 @@ import { path } from "../path";
     }
   }
 
-  // 簡単な対戦相手の作成(先を読む事は出来ない)
+  // 駒を置くイベント(すべての駒に対して)
+  for (let i = 0; i < 64; i++) {
+    frame[i].addEventListener("click", function () {
+      // 駒を置く
+      put_event(i);
+
+      // 最後にユーザーが置いた場合、AIが行わないように
+      const white_count = document.querySelectorAll<HTMLElement>(".white");
+      const black_count = document.querySelectorAll<HTMLElement>(".black");
+      if (white_count.length + black_count.length < 64) {
+        // AIの行動
+        const player = document.querySelector<HTMLElement>(".player");
+        if (player.textContent == "(computer)") {
+          setTimeout(function () {
+            AI();
+          }, 1500);
+          not_available(2000);
+        } else if (player.textContent == "") {
+          not_available(500);
+        }
+      }
+
+      // 勝者判定 (上記にelse ifとして追加する事が出来る)
+      winner_judge();
+    });
+  }
+
+  // 駒を置く
+  function put_event(number) {
+    // 数値を座標に変換
+    let coordinate = coordinate_chage(number);
+    let dy = coordinate[0];
+    let dx = coordinate[1];
+    // そのマスに駒を置くことが出来るのか
+    if (pointer[number].classList.contains("pointer")) {
+      game_board[dy][dx] = now_player_color;
+      eight_reversi_count = eight_directions_search(number);
+      for (let j = 0; j < eight_reversi_count.length; j++) {
+        dy = coordinate[0];
+        dx = coordinate[1];
+
+        // ゲームボードの変更
+        for (let k = 0; k < eight_reversi_count[j]; k++) {
+          dy += eight_directions_coordinate[j][0];
+          dx += eight_directions_coordinate[j][1];
+          game_board[dy][dx] = now_player_color;
+        }
+      }
+
+      turn_change();
+      reset_pointer();
+      game_board_change();
+      put_pointer();
+      pass_judge();
+    }
+  }
+
+  // 簡単な対戦相手の作成(先の手を読む事は出来ない)
   function AI() {
     const ai_area = [];
     let ai_coordinate = 0;
@@ -823,6 +889,7 @@ import { path } from "../path";
     // どこに置くかの決定
     let random = Math.floor(Math.random() * (10 - 1 + 1)) + 1;
     if (random > 2) {
+      // 最大枚数
       let max_area = [ai_area[0].coordinate];
       let ai_max_count = [ai_area[0].count];
       for (let i = 1; i < ai_area.length; i++) {
@@ -835,69 +902,20 @@ import { path } from "../path";
         }
       }
       if (max_area.length > 1) {
+        // 複数ある場合
         random = Math.floor(Math.random() * (max_area.length - 1 + 1));
         ai_coordinate = max_area[random];
       } else {
         ai_coordinate = max_area[0];
       }
     } else {
+      // ランダム
       random = Math.floor(Math.random() * (ai_area.length - 1 + 1));
       ai_coordinate = ai_area[random].coordinate;
     }
 
+    // 決まったマスに駒を置く
     put_event(ai_coordinate);
-  }
-
-  // 駒を置くイベント
-  for (let i = 0; i < 64; i++) {
-    frame[i].addEventListener("click", function () {
-      // 駒を置く
-      put_event(i);
-
-      const white_count = document.querySelectorAll<HTMLElement>(".white");
-      const black_count = document.querySelectorAll<HTMLElement>(".black");
-      if (white_count.length + black_count.length < 64) {
-        // AI
-        const player = document.querySelector<HTMLElement>(".player");
-        if (player.textContent == "(computer)") {
-          setTimeout(function () {
-            AI();
-          }, 1500);
-          not_available(2000);
-        } else if (player.textContent == "") {
-          not_available(750);
-        }
-      }
-      winner_judge();
-    });
-  }
-
-  // 駒を置く
-  function put_event(number) {
-    let coordinate = coordinate_chage(number);
-    let dy = coordinate[0];
-    let dx = coordinate[1];
-    if (pointer[number].classList.contains("pointer")) {
-      game_board[dy][dx] = now_player_color;
-      eight_reversi_count = eight_directions_search(number);
-      for (let j = 0; j < eight_reversi_count.length; j++) {
-        dy = coordinate[0];
-        dx = coordinate[1];
-
-        // ゲームボードの変更
-        for (let k = 0; k < eight_reversi_count[j]; k++) {
-          dy += eight_directions_coordinate[j][0];
-          dx += eight_directions_coordinate[j][1];
-          game_board[dy][dx] = now_player_color;
-        }
-      }
-
-      turn_change();
-      reset_pointer();
-      game_board_change();
-      put_pointer();
-      pass_judge();
-    }
   }
 
   // ターンの表示変更
@@ -1054,19 +1072,24 @@ import { path } from "../path";
       game_board_change();
       put_pointer();
 
-      // もう一度同じ事をやる
+      // 両方とも置けない場合があるので。その確認
       const check_pointer = document.querySelectorAll<HTMLElement>(".pointer");
       const white_count = document.querySelectorAll<HTMLElement>(".white");
       const black_count = document.querySelectorAll<HTMLElement>(".black");
+
+      // 勝ち判定の重複を防ぐ
       if (white_count.length + black_count.length != 64) {
         if (check_pointer.length < 1) {
           result_indication();
         } else {
+          // パス
           pass_indication();
 
-          // AIの操作
+          // AIの操作(ユーザ側のパスの連続)
+          // AI→put_event→pass_judgeでループする
           const player = document.querySelector<HTMLElement>(".player");
           if (player.textContent == "(computer)") {
+            // パスの暗幕との調整のためにある
             setTimeout(function () {
               not_available(1800);
             }, 2700);
@@ -1074,7 +1097,8 @@ import { path } from "../path";
               AI();
             }, 4000);
           } else if (player.textContent == "") {
-            not_available(500);
+            // これ意味あるのか？ 自分でもわからない
+            not_available(750);
           }
         }
       }
@@ -1087,6 +1111,7 @@ import { path } from "../path";
     const pass_player_color =
       pass.querySelector<HTMLElement>(".pass-player-color");
     pass.style.display = "flex";
+    // どっちがパスしたのかを表記
     if (now_player_color == white) {
       pass_player_color.textContent = "Black";
     } else if (now_player_color == black) {
@@ -1227,7 +1252,6 @@ import { path } from "../path";
           result_white_text.textContent = "Draw";
         }
 
-        console.log(turn_player.textContent);
         if (turn_player.textContent == "(you)") {
           if (turn_color.textContent == "black") {
             result_white_name.textContent = "(Computer)";
