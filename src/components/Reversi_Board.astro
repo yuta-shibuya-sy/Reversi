@@ -543,7 +543,7 @@ import { path } from "../path";
 
   .winner {
     background-color: #ffe67d;
-    animation: change-color-anim 2s linear infinite;
+    animation: change-color-anim 1.5s linear infinite;
   }
 
   @keyframes change-color-anim {
@@ -599,6 +599,12 @@ import { path } from "../path";
   /* スマホ対応
   ---------------*/
   @media (max-width: 510px) {
+    .game .turn {
+      font-size: 1.5rem;
+    }
+
+    /* 駒 
+    ---------------*/
     .game-board .frame {
       width: 45px;
       height: 45px;
@@ -610,12 +616,59 @@ import { path } from "../path";
     }
 
     .game-board .frame .piece-pointer {
-      width: 10px;
-      height: 10px;
+      width: 7px;
+      height: 7px;
+    }
+
+    /* パス
+    --------------- */
+    .pass-text {
+      font-size: 35px;
+    }
+    .pass-player-color {
+      font-size: 30px;
+    }
+
+    /* 結果
+    --------------- */
+    .result-white,
+    .result-black {
+      font-size: 20px;
+      width: 70px;
+      padding: 10px;
+      margin: 5px;
+    }
+
+    .underbar {
+      font-size: 35px;
+      margin: 0;
+    }
+
+    .result-text {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+    .result-color {
+      font-size: 20px;
+    }
+
+    .result-name,
+    .score {
+      font-size: 15px;
+      margin-bottom: 5px;
+    }
+
+    .reset {
+      top: -40px;
+      width: 17px;
+      height: 15px;
     }
   }
 
   @media (max-width: 380px) {
+    .game .turn {
+      font-size: 1.3rem;
+    }
     .game-board .frame {
       width: 40px;
       height: 40px;
@@ -624,11 +677,6 @@ import { path } from "../path";
     .game-board .frame .piece {
       width: 25px;
       height: 25px;
-    }
-
-    .game-board .frame .piece-pointer {
-      width: 10px;
-      height: 10px;
     }
   }
 
@@ -642,17 +690,10 @@ import { path } from "../path";
       width: 20px;
       height: 20px;
     }
-
-    .game-board .frame .piece-pointer {
-      width: 10px;
-      height: 10px;
-    }
   }
 </style>
 
 <script>
-  import { componentIsHTMLElement } from "astro/dist/runtime/server/render/dom";
-
   const game_start_button =
     document.querySelector<HTMLElement>(".game-start-button");
   const game_board_color = document.querySelector<HTMLElement>(".game-board");
@@ -697,9 +738,12 @@ import { path } from "../path";
       initialization_turn();
       // ゲームボードの初期設定
       initialization_game_board();
+      // AI
+      initialization_AI();
     }, 1500);
   });
 
+  // ターンの初期設定
   function initialization_turn() {
     const card_player = document.querySelector<HTMLElement>(".card-player");
     const card_color = document.querySelector<HTMLElement>(".card-color");
@@ -710,18 +754,21 @@ import { path } from "../path";
     color.textContent = card_color.getAttribute("color-value");
     if (card_color.getAttribute("color-value") == "white") {
       now_player_color = white;
+      // カーソルの色変更
       game_board_color.classList.add("white-color");
     } else if (card_color.getAttribute("color-value") == "black") {
       now_player_color = black;
+      // カーソルの色変更
       game_board_color.classList.add("black-color");
     }
 
-    // コンピュータ対戦の際、わかりやすく表示するようにする。
+    // コンピュータ対戦の際、わかりやすく表示する。
     if (card_player.getAttribute("player-value") != "") {
       player.textContent = "(" + card_player.getAttribute("player-value") + ")";
     }
   }
 
+  // ゲームボードの初期設定
   function initialization_game_board() {
     for (var i = 0; i < piece.length; i++) {
       piece[i].setAttribute("data-value", String(i));
@@ -730,42 +777,115 @@ import { path } from "../path";
     put_pointer();
   }
 
+  function initialization_AI() {
+    const player = document.querySelector<HTMLElement>(".player");
+
+    if (player.textContent == "(computer)") {
+      setTimeout(function () {
+        AI();
+      }, 5500);
+      not_available(5500);
+    }
+  }
+
+  // 簡単な対戦相手の作成(先を読む事は出来ない)
+  function AI() {
+    const ai_area = [];
+    let ai_coordinate = 0;
+
+    // 置く事が出来る座標とひっくり返す枚数の保存
+    for (let i = 0; i < 64; i++) {
+      if (pointer[i].classList.contains("pointer")) {
+        eight_reversi_count = eight_directions_search(i);
+        let ai_count = 0;
+        for (let j = 0; j < eight_reversi_count.length; j++) {
+          ai_count += eight_reversi_count[j];
+        }
+        ai_area.push({
+          coordinate: i,
+          count: ai_count,
+        });
+      }
+    }
+
+    // どこに置くかの決定
+    let random = Math.floor(Math.random() * (10 - 1 + 1)) + 1;
+    if (random > 2) {
+      let max_area = [ai_area[0].coordinate];
+      let ai_max_count = [ai_area[0].count];
+      for (let i = 1; i < ai_area.length; i++) {
+        if (ai_max_count[0] < ai_area[i].count) {
+          let max_area = [ai_area[i].coordinate];
+          let ai_max_count = [ai_area[1].count];
+        } else if (ai_max_count[0] == ai_area[i].count) {
+          max_area.push(ai_area[i].coordinate);
+          ai_max_count.push(ai_area[1].count);
+        }
+      }
+      if (max_area.length > 1) {
+        random = Math.floor(Math.random() * (max_area.length - 1 + 1));
+        ai_coordinate = max_area[random];
+      } else {
+        ai_coordinate = max_area[0];
+      }
+    } else {
+      random = Math.floor(Math.random() * (ai_area.length - 1 + 1));
+      ai_coordinate = ai_area[random].coordinate;
+    }
+
+    put_event(ai_coordinate);
+  }
+
   // 駒を置くイベント
   for (let i = 0; i < 64; i++) {
     frame[i].addEventListener("click", function () {
-      let coordinate = coordinate_chage(i);
-      let dy = coordinate[0];
-      let dx = coordinate[1];
-      if (pointer[i].classList.contains("pointer")) {
-        game_board[dy][dx] = now_player_color;
-        eight_reversi_count = eight_directions_search(i);
-        for (let j = 0; j < eight_reversi_count.length; j++) {
-          dy = coordinate[0];
-          dx = coordinate[1];
+      // 駒を置く
+      put_event(i);
 
-          // ゲームボードの変更
-          for (let k = 0; k < eight_reversi_count[j]; k++) {
-            dy += eight_directions_coordinate[j][0];
-            dx += eight_directions_coordinate[j][1];
-            game_board[dy][dx] = now_player_color;
-          }
+      const white_count = document.querySelectorAll<HTMLElement>(".white");
+      const black_count = document.querySelectorAll<HTMLElement>(".black");
+      if (white_count.length + black_count.length < 64) {
+        // AI
+        const player = document.querySelector<HTMLElement>(".player");
+        if (player.textContent == "(computer)") {
+          setTimeout(function () {
+            AI();
+          }, 1500);
+          not_available(2000);
+        } else if (player.textContent == "") {
+          not_available(750);
         }
-
-        turn_change();
-        reset_pointer();
-        game_board_change();
-        put_pointer();
-
-        // パスの判定
-        pass_judge();
-
-        // 勝ち判定
-        winner_judge();
-
-        // 操作不可
-        not_available();
       }
+      winner_judge();
     });
+  }
+
+  // 駒を置く
+  function put_event(number) {
+    let coordinate = coordinate_chage(number);
+    let dy = coordinate[0];
+    let dx = coordinate[1];
+    if (pointer[number].classList.contains("pointer")) {
+      game_board[dy][dx] = now_player_color;
+      eight_reversi_count = eight_directions_search(number);
+      for (let j = 0; j < eight_reversi_count.length; j++) {
+        dy = coordinate[0];
+        dx = coordinate[1];
+
+        // ゲームボードの変更
+        for (let k = 0; k < eight_reversi_count[j]; k++) {
+          dy += eight_directions_coordinate[j][0];
+          dx += eight_directions_coordinate[j][1];
+          game_board[dy][dx] = now_player_color;
+        }
+      }
+
+      turn_change();
+      reset_pointer();
+      game_board_change();
+      put_pointer();
+      pass_judge();
+    }
   }
 
   // ターンの表示変更
@@ -786,6 +906,7 @@ import { path } from "../path";
       game_board_color.classList.add("white-color");
     }
 
+    // コンピュータ対戦の際、わかりやすく表示する。
     if (player.textContent == "(you)") {
       player.textContent = "(computer)";
     } else if (player.textContent == "(computer)") {
@@ -793,6 +914,7 @@ import { path } from "../path";
     }
   }
 
+  // 盤面(ゲームボード)の変更
   function game_board_change() {
     for (var i = 0; i < 8; i++) {
       for (var j = 0; j < 8; j++) {
@@ -814,6 +936,7 @@ import { path } from "../path";
     }
   }
 
+  // ポインターの設置
   function put_pointer() {
     for (let i = 0; i < 64; i++) {
       let coordinate = coordinate_chage(i);
@@ -822,6 +945,7 @@ import { path } from "../path";
       if (game_board[dy][dx] == 0) {
         eight_reversi_count = eight_directions_search(i);
 
+        // ひっくり返す事が出来るならポインターを置く
         let count = 0;
         for (let j = 0; j < eight_reversi_count.length; j++) {
           count += eight_reversi_count[j];
@@ -833,6 +957,16 @@ import { path } from "../path";
     }
   }
 
+  // ポインター(置けるマスの表示)のリセット
+  function reset_pointer() {
+    for (let i = 0; i < pointer.length; i++) {
+      if (pointer[i].classList.contains("pointer")) {
+        pointer[i].classList.remove("pointer");
+      }
+    }
+  }
+
+  // 八方向それぞれの返す事で出来る枚数を調べる
   function eight_directions_search(piece_number: Number) {
     let coordinate = coordinate_chage(piece_number);
     let dy = coordinate[0];
@@ -890,23 +1024,16 @@ import { path } from "../path";
     return [dy, dx];
   }
 
-  // ポインター(置けるマスの表示)のリセット
-  function reset_pointer() {
-    for (let i = 0; i < pointer.length; i++) {
-      if (pointer[i].classList.contains("pointer")) {
-        pointer[i].classList.remove("pointer");
-      }
-    }
-  }
-
-  function not_available() {
+  // 選択不可画面表示
+  function not_available(time) {
     const clear_screen = document.querySelector<HTMLElement>(".clear-screen");
     clear_screen.style.display = "block";
     setTimeout(function () {
       clear_screen.style.display = "none";
-    }, 500);
+    }, time);
   }
 
+  // パスの判定
   function pass_judge() {
     const check_pointer = document.querySelectorAll<HTMLElement>(".pointer");
     if (check_pointer.length < 1) {
@@ -929,6 +1056,7 @@ import { path } from "../path";
     }
   }
 
+  // パス画面の表示
   function pass_indication() {
     const pass = document.querySelector<HTMLElement>(".pass");
     const pass_player_color =
@@ -939,7 +1067,9 @@ import { path } from "../path";
     } else if (now_player_color == black) {
       pass_player_color.textContent = "white";
     }
+    not_available(500);
 
+    // パスの表示非表示
     setTimeout(function () {
       pass.style.opacity = "1";
     }, 100);
@@ -951,6 +1081,7 @@ import { path } from "../path";
     }, 2700);
   }
 
+  // ゲーム終了判定
   function winner_judge() {
     const white_count = document.querySelectorAll<HTMLElement>(".white");
     const black_count = document.querySelectorAll<HTMLElement>(".black");
@@ -959,10 +1090,13 @@ import { path } from "../path";
     }
   }
 
+  // 結果画面の表示
   function result_indication() {
     const white_count = document.querySelectorAll<HTMLElement>(".white");
     const black_count = document.querySelectorAll<HTMLElement>(".black");
     const result_screen = document.querySelector<HTMLElement>(".result-screen");
+
+    // 暗幕表示
     result_screen.style.display = "block";
     setTimeout(function () {
       result_screen.style.opacity = "1";
@@ -979,8 +1113,8 @@ import { path } from "../path";
       const turn_color = turn.querySelector<HTMLElement>(".color");
       const turn_player = turn.querySelector<HTMLElement>(".player");
 
+      // 暗幕の間に盤面のリセット(白紙)にする。
       turn.style.display = "none";
-
       for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
           game_board[i][j] = 0;
@@ -992,6 +1126,7 @@ import { path } from "../path";
       }
       game_board_change();
 
+      // 駒の再配置(綺麗に並べる)
       let result_white_count = 63;
       let result_black_count = 0;
       for (let i = 0; i < white_count.length + black_count.length; i++) {
@@ -1020,10 +1155,13 @@ import { path } from "../path";
         }
       }
 
+      // 上記の処理(駒の再配置)が終わってから結果画面を表示する
       setTimeout(function () {
+        const game_wrapper = document.querySelector<HTMLElement>(".wrapper");
         const result_score_screen =
           document.querySelector<HTMLElement>(".result");
-        const game_wrapper = document.querySelector<HTMLElement>(".wrapper");
+
+        // 白色の結果画面
         const result_white =
           document.querySelector<HTMLElement>(".result-white");
         const result_white_text =
@@ -1032,6 +1170,8 @@ import { path } from "../path";
           result_white.querySelector<HTMLElement>(".result-name");
         const result_white_score =
           result_white.querySelector<HTMLElement>(".score");
+
+        // 黒色の結果表示画面
         const result_black =
           document.querySelector<HTMLElement>(".result-black");
         const result_black_text =
@@ -1042,19 +1182,14 @@ import { path } from "../path";
           result_black.querySelector<HTMLElement>(".score");
         const reset = document.querySelector<HTMLElement>(".reset");
 
+        // 背景のぼかし & カーソルが反応しないための暗幕表示
         result_score_screen.style.display = "flex";
         setTimeout(function () {
           game_wrapper.style.filter = "blur(5px)";
           result_score_screen.style.opacity = "1";
-        }, 1500);
+        }, 250);
 
-        setTimeout(function () {
-          reset.style.display = "block";
-        }, 3000);
-        setTimeout(function () {
-          reset.style.opacity = "1";
-        }, 4000);
-
+        // 結果表示
         if (white_count.length > black_count.length) {
           result_white.classList.add("winner");
           result_white_text.textContent = "Winner";
@@ -1067,19 +1202,6 @@ import { path } from "../path";
           result_black_text.textContent = "Draw";
           result_white_text.textContent = "Draw";
         }
-
-        setTimeout(function () {
-          for (let i = 0; i < white_count.length; i++) {
-            setTimeout(function () {
-              result_white_score.textContent = String(i + 1);
-            }, i * 20 + 1500);
-          }
-          for (let j = 0; j < black_count.length; j++) {
-            setTimeout(function () {
-              result_black_score.textContent = String(j + 1);
-            }, j * 20 + 1500);
-          }
-        }, 500);
 
         if (turn_player.textContent == "(you)") {
           if (turn_color.textContent == "black") {
@@ -1098,10 +1220,33 @@ import { path } from "../path";
             result_black_name.textContent = "(Computer)";
           }
         }
+
+        // スコアに動きを付ける
+        setTimeout(function () {
+          for (let i = 0; i < white_count.length; i++) {
+            setTimeout(function () {
+              result_white_score.textContent = String(i + 1);
+            }, i * 20 + 1500);
+          }
+          for (let j = 0; j < black_count.length; j++) {
+            setTimeout(function () {
+              result_black_score.textContent = String(j + 1);
+            }, j * 20 + 1500);
+          }
+        }, 500);
+
+        // リセットボタンの表示
+        setTimeout(function () {
+          reset.style.display = "block";
+        }, 3000);
+        setTimeout(function () {
+          reset.style.opacity = "1";
+        }, 4000);
       }, (white_count.length + black_count.length) * 75);
     }, 1500);
   }
 
+  // リセットボタン
   const reset = document.querySelector<HTMLElement>(".reset");
   reset.addEventListener("click", function () {
     location.reload();
