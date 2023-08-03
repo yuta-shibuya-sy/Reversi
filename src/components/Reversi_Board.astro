@@ -587,7 +587,7 @@ import { path } from "../path";
     width: 100%;
     height: 100%;
     display: none;
-    z-index: 100;
+    z-index: 200;
     position: absolute;
     top: 0;
     right: 0;
@@ -718,6 +718,18 @@ import { path } from "../path";
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
   ];
+
+  // テスト盤面
+  // let game_board = [
+  //   [1, 2, 0, 0, 0, 0, 2, 1],
+  //   [2, 0, 0, 0, 0, 0, 0, 2],
+  //   [0, 0, 0, 0, 0, 0, 0, 0],
+  //   [0, 0, 0, 0, 0, 0, 0, 0],
+  //   [0, 0, 0, 0, 2, 0, 0, 0],
+  //   [0, 0, 0, 0, 2, 0, 0, 0],
+  //   [1, 0, 0, 0, 2, 0, 0, 2],
+  //   [2, 0, 0, 0, 1, 0, 0, 1],
+  // ];
 
   let eight_reversi_count = [];
   const eight_directions_coordinate = [
@@ -1051,6 +1063,19 @@ import { path } from "../path";
           result_indication();
         } else {
           pass_indication();
+
+          // AIの操作
+          const player = document.querySelector<HTMLElement>(".player");
+          if (player.textContent == "(computer)") {
+            setTimeout(function () {
+              not_available(1800);
+            }, 2700);
+            setTimeout(function () {
+              AI();
+            }, 4000);
+          } else if (player.textContent == "") {
+            not_available(500);
+          }
         }
       }
     }
@@ -1067,7 +1092,6 @@ import { path } from "../path";
     } else if (now_player_color == black) {
       pass_player_color.textContent = "white";
     }
-    not_available(500);
 
     // パスの表示非表示
     setTimeout(function () {
@@ -1203,6 +1227,7 @@ import { path } from "../path";
           result_white_text.textContent = "Draw";
         }
 
+        console.log(turn_player.textContent);
         if (turn_player.textContent == "(you)") {
           if (turn_color.textContent == "black") {
             result_white_name.textContent = "(Computer)";
@@ -1213,11 +1238,11 @@ import { path } from "../path";
           }
         } else if (turn_player.textContent == "(computer)") {
           if (turn_color.textContent == "black") {
-            result_white_name.textContent = "(Computer)";
-            result_black_name.textContent = "(You)";
-          } else if (turn_color.textContent == "white") {
             result_white_name.textContent = "(You)";
             result_black_name.textContent = "(Computer)";
+          } else if (turn_color.textContent == "white") {
+            result_white_name.textContent = "(Computer)";
+            result_black_name.textContent = "(You)";
           }
         }
 
@@ -1226,12 +1251,12 @@ import { path } from "../path";
           for (let i = 0; i < white_count.length; i++) {
             setTimeout(function () {
               result_white_score.textContent = String(i + 1);
-            }, i * 20 + 1500);
+            }, i * 20 + 1000);
           }
           for (let j = 0; j < black_count.length; j++) {
             setTimeout(function () {
               result_black_score.textContent = String(j + 1);
-            }, j * 20 + 1500);
+            }, j * 20 + 1000);
           }
         }, 500);
 
